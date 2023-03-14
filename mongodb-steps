@@ -432,7 +432,35 @@ db.department.find(
 
 // Question 4
 
-db.createCollection("classroom")
+db.createCollection("classroom", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: [ "building", "room_number", "capacity" ],
+         properties: {
+            building: {
+               bsonType: "string",
+               maxLength: 20,
+               description: "must be a string and is required"
+            },
+            room_number: {
+               bsonType: "int",
+               maximum: 9999,
+               minimum: 1,
+               description: "must be an integer and is required"
+            },
+            capacity: {
+               bsonType: "int",
+               maximum: 999,
+               minimum: 1,
+               description: "must be an integer and is required"
+            }
+         }
+      }
+   }
+})
+
+db.classroom.createIndex({building: 1, room_number: 1}, {unique: true});
 
 db.section.aggregate([
   {$group: {_id: {building: "$building", room_number: "$room_number"}}},
@@ -448,7 +476,50 @@ db.section.aggregate([
 
 // Question 5
 
-db.createCollection("takes")
+db.createCollection("takes", {
+   validator: {
+      $jsonSchema: {
+         bsonType: "object",
+         required: [ "ID", "course_id", "sec_id", "semester", "year", "grade" ],
+         properties: {
+            ID: {
+               bsonType: "string",
+               maxLength: 5,
+               description: "must be a string and is required"
+            },
+            course_id: {
+               bsonType: "string",
+               maxLength: 30,
+               description: "must be a string and is required"
+            },
+            sec_id: {
+               bsonType: "string",
+               maxLength: 1,
+               description: "must be a string and is required"
+            },
+            semester: {
+               bsonType: "string",
+               maxLength: 30,
+               description: "must be a string and is required"
+            },
+            year: {
+               bsonType: "string",
+               maxLength: 4,
+               description: "must be a string and is required"
+            },
+            grade: {
+               bsonType: "string",
+               maxLength: 5,
+               description: "must be a string and is required"
+            }
+         }
+      }
+   },
+   validationAction: "error",
+   validationLevel: "strict"
+})
+
+db.takes.createIndex({ID: 1, course_id: 1, sec_id: 1, semester: 1, year: 1}, {unique: true});
 
 db.takes.insertMany([
    { ID: '00128', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A' },
