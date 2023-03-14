@@ -20,9 +20,9 @@ db.createCollection("department", {
           description: "must be a string and is required"
         },
         budget: {
-          bsonType: "decimal",
-          maximum: 999999.99,
-          minimum: 0.00,
+          bsonType: "int",
+          maximum: 9999999,
+          minimum: 0,
           description: "must be a numeric value and is required"
         }
       }
@@ -90,9 +90,9 @@ db.createCollection("instructor", {
           description: "must be a string and is required"
         },
         salary: {
-          bsonType: "decimal",
-          maximum: 999999.99,
-          minimum: 0.00,
+          bsonType: "int",
+          maximum: 999999,
+          minimum: 0,
           description: "must be a numeric value and is required"
         }
       }
@@ -444,9 +444,8 @@ db.createCollection("classroom", {
                description: "must be a string and is required"
             },
             room_number: {
-               bsonType: "int",
-               maximum: 9999,
-               minimum: 1,
+               bsonType: "string",
+               maxLength: 5,
                description: "must be an integer and is required"
             },
             capacity: {
@@ -508,15 +507,13 @@ db.createCollection("takes", {
                description: "must be a string and is required"
             },
             grade: {
-               bsonType: "string",
+               bsonType: ["string", "null"],
                maxLength: 5,
                description: "must be a string and is required"
             }
          }
       }
-   },
-   validationAction: "error",
-   validationLevel: "strict"
+   }
 })
 
 db.takes.createIndex({ID: 1, course_id: 1, sec_id: 1, semester: 1, year: 1}, {unique: true});
