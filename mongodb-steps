@@ -301,3 +301,85 @@ db.teaches.aggregate([
   }},
   { $sort: { name: 1 } }
 ]);
+
+// Question 3
+
+db.department.find(
+  {budget: {$gt: db.department.findOne({dept_name: 'Physics'}).budget}},
+  {dept_name: 1, _id: 0}
+).sort({dept_name: 1});
+
+// Question 4
+
+db.createCollection("classroom")
+
+db.section.aggregate([
+  {$group: {_id: {building: "$building", room_number: "$room_number"}}},
+  {$project: {building: "$_id.building", room_number: "$_id.room_number", _id: 0}},
+  {$sort: {building: 1}},
+]).forEach(function(doc) {
+  db.classroom.insertOne({
+    "building": doc.building,
+    "room_number": doc.room_number,
+    "capacity": 100 + (db.classroom.countDocuments() * 5)
+  });
+});
+
+// Question 5
+
+db.createCollection("takes")
+
+db.takes.insertMany([
+   { ID: '00128', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A' },
+   { ID: '00128', course_id: 'CS-347', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A-' },
+   { ID: '12345', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'C' },
+   { ID: '12345', course_id: 'CS-190', sec_id: '2', semester: 'Spring', year: '2017', grade: 'A' },
+   { ID: '12345', course_id: 'CS-315', sec_id: '1', semester: 'Spring', year: '2018', grade: 'A' },
+   { ID: '12345', course_id: 'CS-347', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A' },
+   { ID: '19991', course_id: 'HIS-351', sec_id: '1', semester: 'Spring', year: '2018', grade: 'B' },
+   { ID: '23121', course_id: 'FIN-201', sec_id: '1', semester: 'Spring', year: '2018', grade: 'C+' },
+   { ID: '44553', course_id: 'PHY-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'B-' },
+   { ID: '45678', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'F' },
+   { ID: '45678', course_id: 'CS-101', sec_id: '1', semester: 'Spring', year: '2018', grade: 'B+' },
+   { ID: '45678', course_id: 'CS-319', sec_id: '1', semester: 'Spring', year: '2018', grade: 'B' },
+   { ID: '54321', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A-' },
+   { ID: '54321', course_id: 'CS-190', sec_id: '2', semester: 'Spring', year: '2017', grade: 'B+' },
+   { ID: '55739', course_id: 'MU-199', sec_id: '1', semester: 'Spring', year: '2018', grade: 'A-' },
+   { ID: '76543', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'A' },
+   { ID: '76543', course_id: 'CS-319', sec_id: '2', semester: 'Spring', year: '2018', grade: 'A' },
+   { ID: '76653', course_id: 'EE-181', sec_id: '1', semester: 'Spring', year: '2017', grade: 'C' },
+   { ID: '98765', course_id: 'CS-101', sec_id: '1', semester: 'Fall', year: '2017', grade: 'C-' },
+   { ID: '98765', course_id: 'CS-315', sec_id: '1', semester: 'Spring', year: '2018', grade: 'B' },
+   { ID: '98988', course_id: 'BIO-101', sec_id: '1', semester: 'Summer', year: '2017', grade: 'A' },
+   { ID: '98988', course_id: 'BIO-301', sec_id: '1', semester: 'Summer', year: '2018', grade: null }
+])
+
+db.takes.aggregate([
+  {
+    $group: {
+      _id: {
+        course_id: "$course_id",
+        sec_id: "$sec_id",
+        year: "$year",
+        semester: "$semester"
+      },
+      num: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { num: -1 }
+  },
+  {
+    $limit: 1
+  },
+  {
+    $project: {
+      _id: 0,
+      course_id: "$_id.course_id",
+      sec_id: "$_id.sec_id",
+      year: "$_id.year",
+      semester: "$_id.semester",
+      num: "$num"
+    }
+  }
+])
